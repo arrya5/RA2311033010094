@@ -1,0 +1,97 @@
+.card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+/* Placement glow */
+.card.placement:hover { box-shadow: 0 8px 32px var(--glow-placement); border-color: var(--placement); }
+.card.placement::before { background: radial-gradient(ellipse at top left, var(--glow-placement), transparent 60%); }
+.card.placement:hover::before { opacity: 1; }
+
+/* Result glow */
+.card.result:hover { box-shadow: 0 8px 32px var(--glow-result); border-color: var(--result); }
+.card.result::before { background: radial-gradient(ellipse at top left, var(--glow-result), transparent 60%); }
+.card.result:hover::before { opacity: 1; }
+
+/* Event glow */
+.card.event:hover { box-shadow: 0 8px 32px var(--glow-event); border-color: var(--event); }
+.card.event::before { background: radial-gradient(ellipse at top left, var(--glow-event), transparent 60%); }
+.card.event:hover::before { opacity: 1; }
+
+/* Rank badge */
+.rankBadge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--border);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+
+/* Header row */
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+}
+
+.emoji {
+    font-size: 1.4rem;
+}
+
+.typeBadge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+}
+
+.type_placement { background: rgba(108, 99, 255, 0.15); color: var(--placement); }
+.type_result    { background: rgba(0, 201, 167, 0.15);  color: var(--result); }
+.type_event     { background: rgba(255, 107, 107, 0.15); color: var(--event); }
+
+/* Message */
+.message {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+/* Meta row */
+.meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.timestamp { opacity: 0.8; }
+.score { font-weight: 600; opacity: 0.7; font-family: monospace; }
