@@ -33,7 +33,7 @@ export async function Log(stack, level, pkg, message) {
     };
 
     try {
-        const response = await fetch("http://20.207.122.201/evaluation-service/logs", {
+        await fetch("http://20.207.122.201/evaluation-service/logs", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -41,13 +41,7 @@ export async function Log(stack, level, pkg, message) {
             },
             body: JSON.stringify(logData)
         });
-
-        if (!response.ok) {
-            console.error(`[Logging Middleware] Failed to push logs: ${response.status} ${response.statusText}`);
-        } else {
-            console.log(`[Logging Middleware] Successfully logged: ${level.toUpperCase()} - ${message}`);
-        }
-    } catch (error) {
-        console.error("[Logging Middleware] Error pushing logs to API:", error);
+    } catch (_) {
+        // Silently fail — console logging is strictly forbidden per constraints
     }
 }
