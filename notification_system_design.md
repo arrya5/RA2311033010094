@@ -58,3 +58,84 @@ All notifications are sorted by score in **descending order**, and the top 10 ar
 - `logging_middleware/priorityInbox.js` — Core algorithm implementation
 - `logging_middleware/index.js` — Reusable `Log()` middleware used throughout
 
+---
+
+## Stage 2: Enhanced Frontend — Filtering, Pagination & Viewed State
+
+### Objective
+Extend the Priority Inbox into a full-featured notification browser with client-side filtering, pagination, and read/unread state tracking.
+
+---
+
+### Architecture
+
+The app uses **Next.js 16 App Router** with a clear server/client split:
+
+```
+app/page.js                  (Server Component)
+  └── fetches all notifications once on the server
+      └── NotificationInbox.js  (Client Component — "use client")
+            ├── Section 1: Priority Inbox (static top 10)
+            └── Section 2: Browse All (filtered + paginated)
+                  └── NotificationCard.js  (Client Component)
+hooks/useViewedNotifications.js  (Custom Hook)
+lib/logger.js                (Logging Middleware — CORS-proxied)
+app/api/log/route.js         (Next.js proxy — avoids browser CORS)
+```
+
+---
+
+### Filtering Implementation
+
+- All notifications are fetched **once** from the API on the server.
+- Client-side filtering is applied using `Array.filter()` based on the selected type.
+- **Desktop**: MUI `Tabs` component with four options — All, Placement, Result, Event.
+- **Mobile**: MUI `Select` dropdown for the same options (responsive breakpoint at `sm`).
+- Changing the filter resets the page to 1.
+- Every filter change triggers: `Log("frontend", "info", "api", "Fetched page 1 with filter [type]")`
+
+---
+
+### Pagination Implementation
+
+- Client-side pagination with **6 notifications per page**.
+- MUI `Pagination` component handles page navigation.
+- Total pages = `Math.ceil(filteredCount / 6)`.
+- Every page change triggers: `Log("frontend", "info", "api", "Fetched page [x] with filter [type]")`
+
+---
+
+### Viewed State Management
+
+Tracked via a **custom React hook** (`hooks/useViewedNotifications.js`):
+
+1. On mount, the hook reads a `viewed_notification_ids` key from `localStorage` (array of IDs).
+2. When the user clicks any notification card, `markAsViewed(id)` is called.
+3. The ID is added to a `Set`, persisted back to `localStorage`, and the component re-renders.
+4. Every new view event triggers: `Log("frontend", "debug", "state", "Notification [ID] marked as viewed")`
+
+**Visual Distinction:**
+- **New (unread)**: Full color, hover glow, bright text — active card appearance.
+- **Viewed**: 65% opacity, grey tones, dimmed border, `✓ Viewed` badge shown, no hover lift effect.
+
+---
+
+### Logging Coverage (Stage 2)
+
+| Event | Level | Package | Message |
+|-------|-------|---------|---------|
+| Layout mount | `info` | `style` | MUI layout initialized |
+| Hook init | `debug` | `hook` | useViewedNotifications initialized |
+| Filter change | `info` | `api` | Fetched page 1 with filter [type] |
+| Page change | `info` | `api` | Fetched page [x] with filter [type] |
+| Card viewed | `debug` | `state` | Notification [ID] marked as viewed |
+| Card render | `debug` | `component` | NotificationCard rendered |
+
+---
+
+### Files (Stage 2)
+- `notification_app_fe/components/NotificationInbox.js` — Main layout with filter + pagination
+- `notification_app_fe/components/NotificationCard.js` — Card with viewed/unread states
+- `notification_app_fe/hooks/useViewedNotifications.js` — Custom localStorage hook
+- `notification_app_fe/app/api/log/route.js` — Server-side log proxy (fixes browser CORS)
+- `notification_app_fe/lib/logger.js` — Isomorphic logger (server-direct / client-proxied)
