@@ -1,10 +1,13 @@
 /**
  * Logging Middleware — re-exported for use inside the Next.js app.
- * Wraps the shared logging_middleware from the repo root.
  *
  * Stack is always "frontend" for this app.
  * Levels  : debug | info | warn | error | fatal
  * Packages: api | component | hook | page | state | style
+ *
+ * Routing strategy:
+ *  - Server-side (SSR/RSC): calls the external log API directly
+ *  - Client-side (browser): calls the /api/log Next.js proxy to avoid CORS
  */
 
 const LOG_API_URL = "http://20.207.122.201/evaluation-service/logs";
@@ -13,6 +16,8 @@ const ACCESS_TOKEN =
 
 const VALID_LEVELS = ["debug", "info", "warn", "error", "fatal"];
 const VALID_PACKAGES = ["api", "component", "hook", "page", "state", "style"];
+
+const isServer = typeof window === "undefined";
 
 /**
  * Log a message to the evaluation logging API.
@@ -33,15 +38,27 @@ export async function Log(stack, level, pkg, message) {
         throw new Error(`[Log] Invalid package: '${pkg}'. Must be one of: ${VALID_PACKAGES.join(", ")}`);
     }
 
+    const payload = { stack, level, package: pkg, message };
+
     try {
-        await fetch(LOG_API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${ACCESS_TOKEN}`,
-            },
-            body: JSON.stringify({ stack, level, package: pkg, message }),
-        });
+        if (isServer) {
+            // Server-side: call external API directly (no CORS restriction)
+            await fetch(LOG_API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                },
+                body: JSON.stringify(payload),
+            });
+        } else {
+            // Client-side: route through local Next.js proxy to avoid CORS
+            await fetch("/api/log", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+        }
     } catch (_) {
         // Silently fail — console logging is strictly forbidden
     }

@@ -5,11 +5,11 @@ import {
     Box,
     Container,
     Typography,
-    Grid,
     Divider,
     Alert,
     Chip,
     Stack,
+    Grid2 as Grid,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -128,12 +128,8 @@ export default function NotificationInbox({ top10, all, error }) {
                     <Grid container spacing={2.5}>
                         {top10.map((notif, index) => (
                             <Grid
-                                item
                                 key={notif.ID}
-                                xs={12}
-                                sm={6}
-                                md={4}
-                                lg={3}
+                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                             >
                                 <NotificationCard
                                     rank={index + 1}
@@ -188,12 +184,8 @@ export default function NotificationInbox({ top10, all, error }) {
                     <Grid container spacing={2}>
                         {all.map((notif, index) => (
                             <Grid
-                                item
                                 key={notif.ID}
-                                xs={12}
-                                sm={6}
-                                md={4}
-                                lg={3}
+                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                             >
                                 <NotificationCard
                                     rank={index + 1}
