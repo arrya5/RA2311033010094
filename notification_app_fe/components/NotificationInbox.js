@@ -9,7 +9,7 @@ import {
     Alert,
     Chip,
     Stack,
-    Grid2 as Grid,
+    Grid,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -127,10 +127,7 @@ export default function NotificationInbox({ top10, all, error }) {
 
                     <Grid container spacing={2.5}>
                         {top10.map((notif, index) => (
-                            <Grid
-                                key={notif.ID}
-                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                            >
+                            <Grid item key={notif.ID} xs={12} sm={6} md={4} lg={3}>
                                 <NotificationCard
                                     rank={index + 1}
                                     notification={notif}
@@ -183,10 +180,7 @@ export default function NotificationInbox({ top10, all, error }) {
 
                     <Grid container spacing={2}>
                         {all.map((notif, index) => (
-                            <Grid
-                                key={notif.ID}
-                                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                            >
+                            <Grid item key={notif.ID} xs={12} sm={6} md={4} lg={3}>
                                 <NotificationCard
                                     rank={index + 1}
                                     notification={notif}
