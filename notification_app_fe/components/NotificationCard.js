@@ -161,7 +161,7 @@ export default function NotificationCard({ rank, notification, highlighted = fal
 
                 <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
                     {/* Type icon + chip */}
-                    <Stack direction="row" alignItems="center" spacing={1} mb={1.5}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
                         <Box sx={{ color: viewed ? "#555577" : config.color, display: "flex", alignItems: "center" }}>
                             {config.icon}
                         </Box>
@@ -196,7 +196,7 @@ export default function NotificationCard({ rank, notification, highlighted = fal
                     </Typography>
 
                     {/* Meta: timestamp + score */}
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
                         <Typography variant="caption" sx={{ color: "#555577", fontSize: "0.72rem" }}>
                             🕐 {formattedTime}
                         </Typography>

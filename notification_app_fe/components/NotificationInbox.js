@@ -9,7 +9,6 @@ import {
     Alert,
     Chip,
     Stack,
-    Grid,
     Tabs,
     Tab,
     Pagination,
@@ -33,29 +32,25 @@ export default function NotificationInbox({ top10, all, error }) {
     const [currentPage, setCurrentPage] = useState(1);
     const { markAsViewed, isViewed } = useViewedNotifications();
 
-    // Log layout initialization
     useEffect(() => {
         Log("frontend", "info", "style", "NotificationInbox layout initialized with MUI Container and Grid");
     }, []);
 
-    // Filter notifications client-side
+    // Client-side filter
     const filtered = useMemo(() => {
         if (activeFilter === "All") return all;
         return all.filter((n) => n.Type === activeFilter);
     }, [all, activeFilter]);
 
-    // Paginate
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
     const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-    // Handle filter change
     const handleFilterChange = (_, newValue) => {
         setActiveFilter(newValue);
         setCurrentPage(1);
         Log("frontend", "info", "api", `Fetched page 1 with filter ${newValue}`);
     };
 
-    // Handle page change
     const handlePageChange = (_, page) => {
         setCurrentPage(page);
         Log("frontend", "info", "api", `Fetched page ${page} with filter ${activeFilter}`);
@@ -70,8 +65,9 @@ export default function NotificationInbox({ top10, all, error }) {
             }}
         >
             <Container maxWidth="xl">
+
                 {/* ── Page Header ── */}
-                <Box textAlign="center" mb={6}>
+                <Box sx={{ textAlign: "center", mb: 6 }}>
                     <Chip
                         label="LIVE FEED"
                         size="small"
@@ -105,8 +101,12 @@ export default function NotificationInbox({ top10, all, error }) {
                         Notifications ranked by type priority (Placement &gt; Result &gt; Event) and recency.
                     </Typography>
 
-                    {/* Legend chips */}
-                    <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" mt={3}>
+                    {/* Legend */}
+                    <Stack
+                        direction="row"
+                        spacing={1.5}
+                        sx={{ justifyContent: "center", flexWrap: "wrap", mt: 3 }}
+                    >
                         {[
                             { label: "Placement — Weight 3", color: "#6c63ff" },
                             { label: "Result — Weight 2", color: "#00c9a7" },
@@ -129,10 +129,7 @@ export default function NotificationInbox({ top10, all, error }) {
                 </Box>
 
                 {error && (
-                    <Alert
-                        severity="error"
-                        sx={{ mb: 4, background: "rgba(255,107,107,0.1)", color: "#ff6b6b" }}
-                    >
+                    <Alert severity="error" sx={{ mb: 4, background: "rgba(255,107,107,0.1)", color: "#ff6b6b" }}>
                         Failed to load notifications: {error}
                     </Alert>
                 )}
@@ -140,8 +137,8 @@ export default function NotificationInbox({ top10, all, error }) {
                 {/* ══════════════════════════════
                     SECTION 1 — PRIORITY INBOX
                 ══════════════════════════════ */}
-                <Box mb={2}>
-                    <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
+                <Box sx={{ mb: 2 }}>
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 3 }}>
                         <StarIcon sx={{ color: "#6c63ff", fontSize: 28 }} />
                         <Typography variant="h5" fontWeight={700} sx={{ color: "#f0f0ff" }}>
                             Priority Inbox
@@ -158,19 +155,30 @@ export default function NotificationInbox({ top10, all, error }) {
                         />
                     </Stack>
 
-                    <Grid container spacing={2.5}>
+                    {/* CSS Grid — avoids MUI Grid prop leaking issues with React 19 */}
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: {
+                                xs: "1fr",
+                                sm: "1fr 1fr",
+                                md: "1fr 1fr 1fr",
+                                lg: "1fr 1fr 1fr 1fr",
+                            },
+                            gap: 2.5,
+                        }}
+                    >
                         {top10.map((notif, index) => (
-                            <Grid item key={notif.ID} xs={12} sm={6} md={4} lg={3}>
-                                <NotificationCard
-                                    rank={index + 1}
-                                    notification={notif}
-                                    highlighted
-                                    viewed={isViewed(notif.ID)}
-                                    onView={markAsViewed}
-                                />
-                            </Grid>
+                            <NotificationCard
+                                key={notif.ID}
+                                rank={index + 1}
+                                notification={notif}
+                                highlighted
+                                viewed={isViewed(notif.ID)}
+                                onView={markAsViewed}
+                            />
                         ))}
-                    </Grid>
+                    </Box>
                 </Box>
 
                 {/* Divider */}
@@ -190,19 +198,21 @@ export default function NotificationInbox({ top10, all, error }) {
 
                 {/* ══════════════════════════════
                     SECTION 2 — ALL NOTIFICATIONS
-                    with Filter + Pagination
                 ══════════════════════════════ */}
                 <Box>
-                    {/* Section Header + Filter Controls */}
-                    <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        alignItems={{ xs: "flex-start", sm: "center" }}
-                        justifyContent="space-between"
-                        spacing={2}
-                        mb={3}
-                        flexWrap="wrap"
+                    {/* Header + Filter */}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
+                            alignItems: { xs: "flex-start", sm: "center" },
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: 2,
+                            mb: 3,
+                        }}
                     >
-                        <Stack direction="row" alignItems="center" spacing={1.5}>
+                        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                             <FormatListBulletedIcon sx={{ color: "#8888aa", fontSize: 26 }} />
                             <Typography variant="h5" fontWeight={700} sx={{ color: "#f0f0ff" }}>
                                 All Notifications
@@ -219,18 +229,13 @@ export default function NotificationInbox({ top10, all, error }) {
                             />
                         </Stack>
 
-                        {/* Desktop: MUI Tabs filter */}
+                        {/* Desktop Tabs */}
                         <Box sx={{ display: { xs: "none", sm: "block" } }}>
                             <Tabs
                                 value={activeFilter}
                                 onChange={handleFilterChange}
                                 sx={{
-                                    "& .MuiTab-root": {
-                                        color: "#8888aa",
-                                        fontWeight: 600,
-                                        fontSize: "0.8rem",
-                                        minWidth: 90,
-                                    },
+                                    "& .MuiTab-root": { color: "#8888aa", fontWeight: 600, fontSize: "0.8rem", minWidth: 90 },
                                     "& .Mui-selected": { color: "#6c63ff !important" },
                                     "& .MuiTabs-indicator": { backgroundColor: "#6c63ff" },
                                     background: "rgba(19,19,26,0.8)",
@@ -239,20 +244,14 @@ export default function NotificationInbox({ top10, all, error }) {
                                     px: 0.5,
                                 }}
                             >
-                                {FILTERS.map((f) => (
-                                    <Tab key={f} label={f} value={f} />
-                                ))}
+                                {FILTERS.map((f) => <Tab key={f} label={f} value={f} />)}
                             </Tabs>
                         </Box>
 
-                        {/* Mobile: MUI Select filter */}
+                        {/* Mobile Select */}
                         <Box sx={{ display: { xs: "block", sm: "none" }, minWidth: 160 }}>
                             <FormControl fullWidth size="small">
-                                <InputLabel
-                                    sx={{ color: "#8888aa" }}
-                                    id="filter-select-label"
-                                >
-                                    <FilterListIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                                <InputLabel sx={{ color: "#8888aa" }} id="filter-select-label">
                                     Filter
                                 </InputLabel>
                                 <Select
@@ -268,32 +267,40 @@ export default function NotificationInbox({ top10, all, error }) {
                                         "& .MuiSvgIcon-root": { color: "#8888aa" },
                                     }}
                                 >
-                                    {FILTERS.map((f) => (
-                                        <MenuItem key={f} value={f}>{f}</MenuItem>
-                                    ))}
+                                    {FILTERS.map((f) => <MenuItem key={f} value={f}>{f}</MenuItem>)}
                                 </Select>
                             </FormControl>
                         </Box>
-                    </Stack>
+                    </Box>
 
-                    {/* Notification Grid */}
-                    <Grid container spacing={2}>
+                    {/* CSS Grid for All Notifications */}
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: {
+                                xs: "1fr",
+                                sm: "1fr 1fr",
+                                md: "1fr 1fr 1fr",
+                                lg: "1fr 1fr 1fr 1fr",
+                            },
+                            gap: 2,
+                        }}
+                    >
                         {paginated.map((notif, index) => (
-                            <Grid item key={notif.ID} xs={12} sm={6} md={4} lg={3}>
-                                <NotificationCard
-                                    rank={(currentPage - 1) * PAGE_SIZE + index + 1}
-                                    notification={notif}
-                                    highlighted={false}
-                                    viewed={isViewed(notif.ID)}
-                                    onView={markAsViewed}
-                                />
-                            </Grid>
+                            <NotificationCard
+                                key={notif.ID}
+                                rank={(currentPage - 1) * PAGE_SIZE + index + 1}
+                                notification={notif}
+                                highlighted={false}
+                                viewed={isViewed(notif.ID)}
+                                onView={markAsViewed}
+                            />
                         ))}
-                    </Grid>
+                    </Box>
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <Box display="flex" justifyContent="center" mt={5}>
+                        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
                             <Pagination
                                 count={totalPages}
                                 page={currentPage}
@@ -304,11 +311,7 @@ export default function NotificationInbox({ top10, all, error }) {
                                     "& .MuiPaginationItem-root": {
                                         color: "#8888aa",
                                         borderColor: "#1e1e2e",
-                                        "&:hover": {
-                                            background: "rgba(108,99,255,0.1)",
-                                            borderColor: "#6c63ff",
-                                            color: "#6c63ff",
-                                        },
+                                        "&:hover": { background: "rgba(108,99,255,0.1)", borderColor: "#6c63ff", color: "#6c63ff" },
                                     },
                                     "& .Mui-selected": {
                                         background: "rgba(108,99,255,0.2) !important",
@@ -323,7 +326,7 @@ export default function NotificationInbox({ top10, all, error }) {
                 </Box>
 
                 {/* Footer */}
-                <Box textAlign="center" mt={6}>
+                <Box sx={{ textAlign: "center", mt: 6 }}>
                     <Typography variant="caption" sx={{ color: "#8888aa", opacity: 0.5 }}>
                         Score = TypeWeight × 1000 + NormalizedRecency (0–999) &nbsp;|&nbsp; {PAGE_SIZE} per page
                     </Typography>
