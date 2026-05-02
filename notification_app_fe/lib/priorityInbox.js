@@ -60,7 +60,11 @@ export async function fetchPriorityNotifications(token) {
         .sort((a, b) => b._score - a._score)
         .slice(0, 10);
 
+    const all = notifications
+        .map((n) => ({ ...n, _score: computeScore(n, minTime, maxTime) }))
+        .sort((a, b) => b._score - a._score);
+
     await Log("frontend", "info", "state", `Priority inbox computed — top 10 selected from ${notifications.length} notifications`);
 
-    return top10;
+    return { top10, all };
 }
