@@ -7,6 +7,21 @@
  * @param {string} message - The actual log message
  */
 export async function Log(stack, level, pkg, message) {
+    // Validation Logic
+    if (stack !== "frontend") {
+        throw new Error(`[Logging Middleware] Invalid stack: '${stack}'. Must be 'frontend'.`);
+    }
+    
+    const validLevels = ["debug", "info", "warn", "error", "fatal"];
+    if (!validLevels.includes(level)) {
+        throw new Error(`[Logging Middleware] Invalid level: '${level}'. Must be one of: ${validLevels.join(", ")}`);
+    }
+    
+    const validPackages = ["api", "component", "hook", "page", "state", "style"];
+    if (!validPackages.includes(pkg)) {
+        throw new Error(`[Logging Middleware] Invalid package: '${pkg}'. Must be one of: ${validPackages.join(", ")}`);
+    }
+
     // Access token from authentication step
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiYXVkIjoiaHR0cDovLzIwLjI0NC41Ni4xNDQvZXZhbHVhdGlvbi1zZXJ2aWNlIiwiZW1haWwiOiJhdDQzMDJAc3JtaXN0LmVkdS5pbiIsImV4cCI6MTc3NzY5ODc4NiwiaWF0IjoxNzc3Njk3ODg2LCJpc3MiOiJBZmZvcmQgTWVkaWNhbCBUZWNobm9sb2dpZXMgUHJpdmF0ZSBMaW1pdGVkIiwianRpIjoiZDkzYTViOGUtMDIxMi00OTYyLTljMzUtZjc4OTU4YjNjYTk5IiwibG9jYWxlIjoiZW4tSU4iLCJuYW1lIjoiYXJyeWEgdGhha3VyIiwic3ViIjoiMzhkOWQyNWItMTQzZi00ZTgyLWI0MjItN2U5MzI4Mjg2NmY3In0sImVtYWlsIjoiYXQ0MzAyQHNybWlzdC5lZHUuaW4iLCJuYW1lIjoiYXJyeWEgdGhha3VyIiwicm9sbE5vIjoicmEyMzExMDMzMDEwMDk0IiwiYWNjZXNzQ29kZSI6IlFrYnB4SCIsImNsaWVudElEIjoiMzhkOWQyNWItMTQzZi00ZTgyLWI0MjItN2U5MzI4Mjg2NmY3IiwiY2xpZW50U2VjcmV0IjoiVVNQYmN5SEpLU2pEalZmcyJ9.L4uanxHQiYXzOPabLgDGUQgXlUWK5tPdSJtPcRrGd6Q";
     
